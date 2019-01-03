@@ -10,7 +10,7 @@ variables:
 
 steps:
 - script: |
-    dotnet build --configuration $(buildConfiguration)
+    dotnet build --configuration $(buildConfiguration) -v d
   displayName: 'dotnet build $(buildConfiguration)'
 - script: |
     dotnet pack --configuration $(buildConfiguration)

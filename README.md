@@ -3,6 +3,7 @@
  [![](https://img.shields.io/azure-devops/coverage/andreasmewald/ExtensionsDataflow/5.svg)](https://dev.azure.com/andreasmewald/ExtensionsDataflow)
  [![](https://img.shields.io/azure-devops/tests/andreasmewald/ExtensionsDataflow/5.svg)](https://dev.azure.com/andreasmewald/ExtensionsDataflow)
  [![](https://img.shields.io/nuget/v/TplDataFlow.Extension.svg)](https://www.nuget.org/packages/TplDataFlow.Extension/)
+ [![](https://img.shields.io/nuget/dt/TplDataFlow.Extension.svg)](https://www.nuget.org/packages/TplDataFlow.Extension/)
  
  
  

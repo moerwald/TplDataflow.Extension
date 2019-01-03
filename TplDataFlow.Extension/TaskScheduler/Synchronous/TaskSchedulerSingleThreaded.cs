@@ -36,17 +36,30 @@ namespace TplDataFlow.Extension.TaskScheduler.Synchronous
 
         public void ExecuteAllTasksInActualThread()
         {
-            // Work on copy, new task may be added, while list iteration is performed
-            LinkedList<Task> listCopy = null;
-            lock (_taskList)
+            var otherTaskAddedInMeanwhile = false;
+            do
             {
-                listCopy = new LinkedList<Task>(_taskList);
-            }
+                // Work on copy, new task may be added, while list iteration is performed
+                LinkedList<Task> listCopy = new LinkedList<Task>(_taskList);
+                lock (_taskList)
+                {
+                    foreach (var t in _taskList)
+                    {
+                        listCopy.AddLast(t);
+                    }
+                    _taskList.Clear();
+                }
+                // From here on new tasks might be added to _taskList via another thread
+                foreach (Task t in listCopy)
+                {
+                    this.TryExecuteTask(t);
+                }
 
-            foreach (Task t in listCopy)
-            {
-                this.TryExecuteTask(t);
-            }
+                lock (_taskList)
+                {
+                    otherTaskAddedInMeanwhile = _taskList.First?.Value != null;
+                }
+            } while (otherTaskAddedInMeanwhile);
         }
     }
 }

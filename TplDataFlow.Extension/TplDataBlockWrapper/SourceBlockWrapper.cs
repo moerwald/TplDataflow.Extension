@@ -10,7 +10,7 @@ namespace TplDataFlow.Extension.TplDataBlockWrapper
     {
         private readonly IReceivableSourceBlock<TOutput> _sourceBlock;
 
-        public SourceBlockWrapper(IReceivableSourceBlock<TOutput> sourceBlock) =>  _sourceBlock = sourceBlock;
+        public SourceBlockWrapper(IReceivableSourceBlock<TOutput> sourceBlock) =>  _sourceBlock = sourceBlock ?? throw new ArgumentNullException(nameof(sourceBlock));
 
         public IDisposable LinkTo(ITargetBlock<TOutput> target) => _sourceBlock.LinkTo(target);
 

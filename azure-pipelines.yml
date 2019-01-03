@@ -1,7 +1,3 @@
-# .NET Desktop
-# Build and run tests for .NET Desktop or Windows classic desktop solutions.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 trigger:
 - master
@@ -10,24 +6,40 @@ pool:
   vmImage: 'VS2017-Win2016'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@0
-
-- task: NuGetCommand@2
+- script: |
+    dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+- script: |
+    dotnet pack --configuration $(buildConfiguration)
+  displayName: 'dotnet pack $(buildConfiguration)'
+- script: |
+    mkdir $(Build.SourcesDirectory)\results
+    dotnet test --logger trx /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura  
+    copy TplDataflow.Extension.Tests\coverage.cobertura.xml $(Build.SourcesDirectory)\results
+    dotnet tool install dotnet-reportgenerator-globaltool --tool-path . --version 4.0.0-rc4
+    .\reportgenerator "-reports:$(Build.SourcesDirectory)\results\coverage.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)\results" "-reporttypes:HTMLInline;HTMLChart"
+  displayName: 'Unit testing'
+- task: PublishTestResults@2
   inputs:
-    restoreSolution: '$(solution)'
-
-- task: VSBuild@1
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
+- task: PublishCodeCoverageResults@1
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
+    summaryFileLocation: $(Build.SourcesDirectory)\results\coverage.cobertura.xml
+    reportDirectory: $(Build.SourcesDirectory)\results
+    codecoverageTool: cobertura
+    
+- task: DotNetCoreCLI@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: publish
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    projects: TplDataFlow.Extension\TplDataFlow.Extension.csproj
+    publishWebProjects: false
+    modifyOutputPath: true
+    zipAfterPublish: true
+
+- task: PublishBuildArtifacts@1
+

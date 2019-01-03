@@ -3,3 +3,8 @@
 ################################################################################
 
 /.vs/TplDataFlow.Extension.Solution
+/packages/System.Threading.Tasks.Dataflow.4.9.0
+/TplDataFlow.Extension/bin
+/TplDataFlow.Extension/obj
+/TplDataflow.Extension.Tests/bin
+/TplDataflow.Extension.Tests/obj

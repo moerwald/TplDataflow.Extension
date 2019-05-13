@@ -9,6 +9,25 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'Sonarcloud'
+    organization: 'moerwald-github'
+    scannerMode: 'MSBuild'
+    projectKey: 'moerwald_TplDataflow.Extension'
+    projectName: 'TplDataflow.Extension'
+
+# Install SonarScanner
+- script: |
+     dotnet tool install --global dotnet-sonarscanner
+  displayName: 'install sonarscanner'
+  
+# Run Sonar
+- script: |
+     dotnet sonarscanner begin /k:"moerwald_TplDataflow.Extension" 
+  displayName: 'sonarscanner begin'
+
+
 - script: |
     dotnet build --configuration $(buildConfiguration) -v d
   displayName: 'dotnet build $(buildConfiguration)'
@@ -31,6 +50,16 @@ steps:
     summaryFileLocation: $(Build.SourcesDirectory)\results\coverage.cobertura.xml
     reportDirectory: $(Build.SourcesDirectory)\results
     codecoverageTool: cobertura
+
+# End SonarScanner
+- script: |
+    dotnet sonarscanner end 
+  displayName: 'sonarscanner end'
+
+    
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
     
 - task: DotNetCoreCLI@2
   inputs:
@@ -42,4 +71,7 @@ steps:
     zipAfterPublish: true
 
 - task: PublishBuildArtifacts@1
+
+
+
 
